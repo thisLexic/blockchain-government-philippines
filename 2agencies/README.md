@@ -7,4 +7,10 @@ sudo docker-compose down
 
 Step 1   Setup the network artefacts
 ====================================
-sudo docker-compose up -d tools  
+
+# 1 Launch and login to tools container
+sudo docker-compose up -d tools
+sudo docker exec -it tools /bin/bash
+
+# 2 Generate the crypto matrial
+cd /var/hyperledger/config

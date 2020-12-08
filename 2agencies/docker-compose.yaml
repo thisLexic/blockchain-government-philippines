@@ -31,7 +31,7 @@ services:
     # Map the folder with MSP for orderer
     - ./config/crypto-config/ordererOrganizations/coa.com/orderers/orderer.coa.com/msp:/var/hyperledger/msp
     # Added to support the TLS setup
-    - ../config/crypto-config/ordererOrganizations/coa.com/orderers/orderer.coa.com/tls:/var/hyperledger/tls
+    - ./config/crypto-config/ordererOrganizations/coa.com/orderers/orderer.coa.com/tls:/var/hyperledger/tls
     - data-orderer.coa.com:/var/ledger
     ports:
       - 7050:7050
@@ -123,9 +123,9 @@ services:
       # Mapping for the sample chaincode folders
       - ../chaincode:/opt/nodechaincode
       # Folder with channel create tx file
-      - ../config:/var/hyperledger/config
+      - ./config:/var/hyperledger/config
       # Map the folder to root of all Fabric CA Client crypto
-      - ../config/crypto-config/peerOrganizations:/var/hyperledger/crypto
+      - ./config/crypto-config/peerOrganizations:/var/hyperledger/crypto
       # VM docker stream folder mapping
       - /var/run/:/host/var/run/
     networks:

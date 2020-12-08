@@ -1,0 +1,34 @@
+# Defines four organizations
+#  - Orderer organization (coa)
+#  - coa
+#  - dpwh
+
+##### Orderer for coa
+OrdererOrgs:
+  - Name: Orderer
+    Domain: coa.com
+    EnableNodeOUs: true
+    Specs:
+      - Hostname: orderer
+      
+#### Peers for coa
+PeerOrgs:
+  # Peer configuration for COA
+  - Name: COA
+    Domain: coa.com
+    EnableNodeOUs: true
+    Specs:
+      - Hostname: peer1.coa.com
+        CommonName: peer1.coa.com
+    Users:
+      Count: 1
+
+  # Peer configuration for DPWH
+  - Name: DPWH
+    Domain: dpwh.com
+    EnableNodeOUs: true
+    Specs:
+      - Hostname: peer1.dpwh.com
+        CommonName: peer1.dpwh.com
+    Users:
+      Count: 1
