@@ -9,3 +9,6 @@
 !*/config/channel
 */config/channel/*
 !*/config/channel/.gitkeep
+
+!*/config/coa
+!*/config/dpwh

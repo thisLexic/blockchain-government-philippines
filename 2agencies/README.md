@@ -5,13 +5,12 @@ This folder is for testing the decentralized network between two government agen
 Execute these commands in the same directory as this README file to test out the network locally
 
 # Helper Commands/Scripts
-====================================
 sudo docker-compose ps
+
 sudo docker-compose down
 sudo ./clean.sh
 
 # Step 1   Setup the network artefacts
-====================================
 
 ## 1 Launch and login to tools container
 sudo docker-compose up -d tools
@@ -29,3 +28,11 @@ configtxgen -outputCreateChannelTx  ./channel/philgovchannel.tx -channelID philg
 ## 4 Exit and shutdown tools container
 exit
 sudo docker-compose down
+
+# Part-2  Setup the COA & DPWH peers
+
+## 1 Launch the environment
+sudo docker-compose up -d
+
+## 2 Log into the tools container
+sudo docker exec -it tools /bin/bash
