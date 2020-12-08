@@ -1,6 +1,7 @@
 
 */config/*
 !*/config/*.yaml
+!*/config/*.sh
 
 !*/config/orderer
 */config/orderer/*

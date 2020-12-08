@@ -7,8 +7,9 @@ Execute these commands in the same directory as this README file to test out the
 # Helper Commands/Scripts
 sudo docker-compose ps
 
-sudo docker-compose down
 sudo ./clean.sh
+sudo docker-compose down -v
+docker volume prune -f
 
 # Step 1   Setup the network artefacts
 
@@ -21,7 +22,7 @@ cd /var/hyperledger/config
 cryptogen generate --config=./crypto-config.yaml
 
 ## 3 Generate the network artefacts
-configtxgen -outputBlock  ./orderer/philgovgenesis.block -channelID philgovchannel  -profile PhilGovOrdererGenesis
+configtxgen -outputBlock  ./orderer/philgovgenesis.block -channelID ordererchannel  -profile PhilGovOrdererGenesis
 
 configtxgen -outputCreateChannelTx  ./channel/philgovchannel.tx -channelID philgovchannel  -profile PhilGovChannel
 
@@ -36,3 +37,10 @@ sudo docker-compose up -d
 
 ## 2 Log into the tools container
 sudo docker exec -it tools /bin/bash
+
+## 3 As COA create | join | update channel
+cd /var/hyperledger/config
+. set-context.sh coa
+
+peer channel create -c philgovchannel -f /var/hyperledger/config/channel/philgovchannel.tx --outputBlock /var/hyperledger/config/orderer/philgovchannel.block -o $ORDERER_ADDRESS
+
