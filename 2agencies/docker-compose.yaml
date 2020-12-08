@@ -1,0 +1,133 @@
+# Docker Compose file
+# 1 orderer and 1 anchor peer for COA
+# 1 anchor peer for DPWH
+
+version: '2'
+
+networks:
+  philippineGovernment:
+
+# Storage outside the containers
+volumes:
+  data-orderer.coa.com:
+  data-peer1.coa.com:
+  data-peer1.dpwh.com:
+
+services:
+
+  # Orderer service
+  orderer.coa.com:
+    container_name: orderer.coa.com
+    image: hyperledger/fabric-orderer:2.3
+    command: orderer
+    # Override environment variables for orderer in this section
+    environment:
+      - FABRIC_CFG_PATH=/var/hyperledger/config
+      - FABRIC_LOGGING_SPEC=ERROR
+    # Host folder mappings
+    volumes:
+    # Folder with genesis block
+    - ./config/orderer:/var/hyperledger/config
+    # Map the folder with MSP for orderer
+    - ./config/crypto-config/ordererOrganizations/coa.com/orderers/orderer.coa.com/msp:/var/hyperledger/msp
+    # Added to support the TLS setup
+    - ../config/crypto-config/ordererOrganizations/coa.com/orderers/orderer.coa.com/tls:/var/hyperledger/tls
+    - data-orderer.coa.com:/var/ledger
+    ports:
+      - 7050:7050
+    networks:
+      - philippineGovernment
+
+  # COA peer1
+  peer1.coa.com:
+    container_name: peer1.coa.com
+    image: hyperledger/fabric-peer:2.3
+    # Override variables in this section
+    environment:
+      - FABRIC_CFG_PATH=/var/hyperledger/config
+      - FABRIC_LOGGING_SPEC=WARNING
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=${COMPOSE_PROJECT_NAME}_philippineGovernment
+    # Start the peer node
+    command: peer node start
+    # Host folder mappings
+    volumes:
+      # Folder with channel create tx file
+      - ./config/coa:/var/hyperledger/config
+      # Map the folder with MSP for Peer
+      - ./config/crypto-config/peerOrganizations/coa.com/peers/peer1.coa.com/msp:/var/hyperledger/msp
+      # Added to support the TLS setup
+      - ./config/crypto-config/peerOrganizations/coa.com/peers/peer1.coa.com/tls:/var/hyperledger/tls
+      - /var/run/:/var/run/
+      - data-peer1.coa.com:/var/hyperledger/production
+    depends_on: 
+      - orderer.coa.com
+    # Map the ports on Host VM to container ports
+    ports:
+      - 7051:7051
+      - 7052:7052
+    networks:
+      - philippineGovernment
+
+  # DPWH peer1
+  peer1.dpwh.com:
+    container_name: peer1.dpwh.com
+    image: hyperledger/fabric-peer:2.3
+    # landing directory
+    working_dir: $HOME
+    # command: peer node start --peer-chaincodedev=true
+    command: peer node start
+    # Environment setup for peer
+    environment:
+      - FABRIC_CFG_PATH=/var/hyperledger/config
+      - FABRIC_LOGGING_SPEC=WARNING
+      - GOPATH=/opt/gopath
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=${COMPOSE_PROJECT_NAME}_philippineGovernment
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.dpwh.com:7051
+    # host file system mappings
+    volumes:
+      # Folder with channel create tx file
+      - ./config/dpwh:/var/hyperledger/config
+      # Map the folder with MSP for Peer
+      - ./config/crypto-config/peerOrganizations/dpwh.com/peers/peer1.dpwh.com/msp:/var/hyperledger/msp
+      # Added to support the TLS setup
+      - ./config/crypto-config/peerOrganizations/dpwh.com/peers/peer1.dpwh.com/tls:/var/hyperledger/tls
+      - /var/run/:/var/run/
+      - data-peer1.dpwh.com:/var/hyperledger/production
+    depends_on: 
+      - orderer.coa.com
+    # Map the ports on Host VM to container ports
+    ports:
+      - 8051:7051
+      - 8052:7052
+    networks:
+      - philippineGovernment
+
+  # Tools container used for managing peers
+  tools:
+    container_name: tools
+    command: /bin/bash
+
+    # Tools container image
+    # image: hyperledger/fabric-tools:$IMAGE_TAG
+    image: hyperledger/fabric-tools:2.3
+
+    tty: true
+    stdin_open: true
+    environment:
+      - GOPATH=/opt/gopath
+      - FABRIC_CFG_PATH=/var/hyperledger/config
+      - FABRIC_LOGGING_SPEC=WARNING
+    # This is the working directory on login
+    working_dir: /opt/scripts
+    volumes:
+      # Mapping for the sample chaincode folders
+      - ../chaincode:/opt/nodechaincode
+      # Folder with channel create tx file
+      - ../config:/var/hyperledger/config
+      # Map the folder to root of all Fabric CA Client crypto
+      - ../config/crypto-config/peerOrganizations:/var/hyperledger/crypto
+      # VM docker stream folder mapping
+      - /var/run/:/host/var/run/
+    networks:
+      - philippineGovernment
+  
