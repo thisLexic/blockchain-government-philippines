@@ -1,9 +1,12 @@
 This folder is for testing the decentralized network between two government agencies in the Philippines: COA and DWPH
 
-Helper Commands
+Execute these commands in the same directory as this README file
+
+Helper Commands/Scripts
 ====================================
 sudo docker-compose ps
 sudo docker-compose down
+sudo ./clean.sh
 
 Step 1   Setup the network artefacts
 ====================================
@@ -15,3 +18,6 @@ sudo docker exec -it tools /bin/bash
 # 2 Generate the crypto matrial
 cd /var/hyperledger/config
 cryptogen generate --config=./crypto-config.yaml
+
+# 3 Generate the network artefacts
+configtxgen -outputBlock  ./orderer/airlinegenesis.block -channelID ordererchannel  -profile AirlineOrdererGenesis
