@@ -20,4 +20,4 @@ cd /var/hyperledger/config
 cryptogen generate --config=./crypto-config.yaml
 
 # 3 Generate the network artefacts
-configtxgen -outputBlock  ./orderer/airlinegenesis.block -channelID ordererchannel  -profile AirlineOrdererGenesis
+configtxgen -outputBlock  ./orderer/philgovgenesis.block -channelID philgovchannel  -profile PhilGovOrdererGenesis

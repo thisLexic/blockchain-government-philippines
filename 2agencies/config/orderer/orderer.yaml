@@ -1,0 +1,69 @@
+General:
+
+    BootstrapMethod: file
+
+    BootstrapFile: /var/hyperledger/config/philgovgenesis.block
+
+    BCCSP:
+        # Setup to use the Software CSP
+        Default: SW
+        SW:
+            HASH: SHA2
+            Security: 256
+            FileKeyStore:
+                Keystore:
+
+    LocalMSPDir: /var/hyperledger/msp
+    LocalMSPID: OrdererMSP
+    ListenAddress: 0.0.0.0
+    ListenPort: 7050
+
+
+    # Keepalive settings for the GRPC server.
+    Keepalive:
+        # Disconnect the client if the time between pings is less than the specified time
+        ServerMinInterval: 60s
+        # Server pings the clients on open connection with the specified time between pings
+        ServerInterval: 7200s
+        # Server expects the clients to respond to pings. Server disconnets if response not receieved within timeout
+        ServerTimeout: 20s
+
+    # TLS: TLS settings for the GRPC server.
+    TLS:
+        Enabled: false
+        PrivateKey: ./server.key
+        Certificate: ./server.crt
+        RootCAs:
+          - ./ca.crt
+        ClientAuthRequired: false
+        ClientRootCAs:
+
+
+FileLedger:
+    Location: /var/ledger
+    Prefix: hyperledger-fabric-ordererledger    
+
+Operations:
+    # host and port for the operations server
+    ListenAddress: 127.0.0.1:8443
+
+    # TLS configuration for the operations endpoint
+    TLS:
+        # TLS enabled?
+        Enabled: false
+        Certificate:
+        PrivateKey:
+        ClientAuthRequired: false
+        RootCAs: []
+
+Metrics:
+    # The metrics provider is one of statsd, prometheus, or disabled
+    Provider: disabled
+
+    # The statsd configuration
+    Statsd:
+      # network type: tcp or udp
+      Network: udp
+      Address: 127.0.0.1:8125
+      WriteInterval: 30s
+      Prefix:

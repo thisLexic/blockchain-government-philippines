@@ -1,0 +1,230 @@
+Capabilities:
+  Application: &ApplicationCapabilities
+    V2_0: true
+  Orderer: &OrdererCapabilities
+    V2_0: true
+  Channel: &ChannelCapabilities
+    V2_0: true
+
+Organizations:
+  - &Orderer
+    Name: Orderer
+    ID: OrdererMSP
+    MSPDir: ./crypto-config/ordererOrganizations/coa.com/msp
+    Policies: &OrdererPolicies
+      Readers:
+          Type: Signature
+          Rule: "OR('OrdererMSP.member')"
+      Writers:
+          Type: Signature
+          Rule: "OR('OrdererMSP.member')"
+      Admins:
+          Type: Signature
+          # ONLY Admin Role can carry out administration activities
+          Rule: "OR('OrdererMSP.admin')"
+      Endorsement:
+          Type: Signature
+          Rule: "OR('OrdererMSP.member')"
+
+  - &Coa
+    Name: Coa
+    ID: CoaMSP
+    MSPDir: ./crypto-config/peerOrganizations/coa.com/msp
+    Policies: &CoaPolicies
+      Readers:
+          Type: Signature
+          # Any member can READ e.g., query
+          Rule: "OR('CoaMSP.member')"
+      Writers:
+          Type: Signature
+          # Any member can WRITE e.g., submit transaction
+          Rule: "OR('CoaMSP.member')"
+      Admins:
+          Type: Signature
+          # Either Coa admin OR Orderer Admin can carry out admin activities
+          Rule: "OR('CoaMSP.admin')"
+      Endorsement:
+          Type: Signature
+          # Any member can act as an endorser
+          Rule: "OR('CoaMSP.member')"
+    AnchorPeers:
+      - Host: peer1.coa.com
+        Port: 7051
+
+  - &Dpwh
+    Name: Dpwh
+    ID: DpwhMSP
+    MSPDir: ./crypto-config/peerOrganizations/dpwh.com/msp
+    Policies: &DpwhPolicies
+      Readers:
+          Type: Signature
+          # Any member
+          Rule: "OR('DpwhMSP.member')"
+      Writers:
+          Type: Signature
+          # Any member
+          Rule: "OR('DpwhMSP.member')"
+      Admins:
+          Type: Signature
+          # BOTH Dpwh Admin AND Orderer Admin needed for admin activities
+          Rule: "OR('DpwhMSP.member')"
+      Endorsement:
+          Type: Signature
+          Rule: "OR('DpwhMSP.member')"
+    AnchorPeers:
+      - Host: peer1.dpwh.com
+        Port: 7051
+
+  
+
+Orderer: &OrdererDefaults
+
+  OrdererType: solo
+
+  Addresses:
+    # UPDATE THE IP ADDRESS
+    - orderer.coa.com:7050
+  # Policies for Orderer
+  Policies:
+    Readers:
+        Type: ImplicitMeta
+        Rule: "ANY Readers"
+    Writers:
+        Type: ImplicitMeta
+        Rule: "ANY Writers"
+    Admins:
+        Type: ImplicitMeta  
+        Rule: "ANY Admins"
+        # Rule: "MAJORITY Admins"
+
+    # BlockValidation specifies what signatures must be included in the block
+    # from the orderer for the peer to validate it.
+    BlockValidation:
+        Type: ImplicitMeta
+        Rule: "ANY Writers"
+
+  # Batch Timeout: The amount of time to wait before creating a batch
+  BatchTimeout: 2s
+
+  # Batch Size: Controls the number of messages batched into a block
+  BatchSize:
+    MaxMessageCount: 10
+    AbsoluteMaxBytes: 98 MB
+    PreferredMaxBytes: 512 KB
+
+  Capabilities:
+    <<: *OrdererCapabilities
+
+Application: &ApplicationDefaults
+
+  ACLs: &ACLsDefault
+    
+    lscc/ChaincodeExists: /Channel/Application/Readers
+    lscc/GetDeploymentSpec: /Channel/Application/Readers
+    lscc/GetChaincodeData: /Channel/Application/Readers
+    lscc/GetInstantiatedChaincodes: /Channel/Application/Readers
+    
+    qscc/GetChainInfo: /Channel/Application/Readers
+    qscc/GetBlockByNumber: /Channel/Application/Readers
+    qscc/GetBlockByHash: /Channel/Application/Readers
+    qscc/GetTransactionByID: /Channel/Application/Readers
+    qscc/GetBlockByTxID: /Channel/Application/Readers
+
+    cscc/GetConfigBlock: /Channel/Application/Readers
+    cscc/GetConfigTree: /Channel/Application/Readers
+    cscc/SimulateConfigTreeUpdate: /Channel/Application/Readers
+    
+    peer/Propose: /Channel/Application/Writers
+    peer/ChaincodeToChaincode: /Channel/Application/Readers
+
+    event/Block: /Channel/Application/Readers
+    event/FilteredBlock: /Channel/Application/Readers
+
+    _lifecycle/CheckCommitReadiness: /Channel/Application/Writers
+    _lifecycle/CommitChaincodeDefinition: /Channel/Application/Writers
+    _lifecycle/QueryChaincodeDefinition: /Channel/Application/Readers
+    
+
+
+  # Default policies
+  Policies: &ApplicationDefaultPolicies
+
+    # --channel-config-policy
+    Endorsement:
+        Type: ImplicitMeta
+        Rule: "ANY Endorsement"
+    Readers:
+        Type: ImplicitMeta
+        Rule: "ANY Readers"
+    Writers:
+        Type: ImplicitMeta
+        Rule: "ANY Writers"
+    Admins:
+        Type: ImplicitMeta
+        Rule: "ANY Admins"
+
+    LifecycleEndorsement:
+        Type: ImplicitMeta
+        Rule: "ANY Endorsement"
+
+
+  Organizations:
+
+  Capabilities:
+    <<: *ApplicationCapabilities
+ 
+
+#   CHANNEL
+Channel: &ChannelDefaults
+  Policies:
+    Readers:
+        Type: ImplicitMeta
+        Rule: "ANY Readers"
+    Writers:
+        Type: ImplicitMeta
+        Rule: "ANY Writers"
+    Admins:
+        Type: ImplicitMeta
+        Rule: "ANY Admins"
+
+  Capabilities:
+    <<: *ChannelCapabilities
+
+  
+#   PROFILES
+Profiles:
+
+  PhilGovOrdererGenesis:
+      <<: *ChannelDefaults
+      Orderer:
+          <<: *OrdererDefaults
+          Organizations:
+              - <<: *Orderer
+      Consortiums:
+        PhilGovConsortium:
+            Organizations:
+                  - <<: *Coa
+                  - <<: *Dpwh
+
+      Application:
+            <<: *ApplicationDefaults
+
+            Organizations:
+                - <<: *Coa
+                - <<: *Dpwh
+
+                 
+
+      
+                                
+                  
+  PhilGovChannel:
+    <<: *ChannelDefaults
+    Consortium: PhilGovConsortium
+        
+    Application:
+        <<: *ApplicationDefaults
+        
+        Organizations:
+            - <<: *Coa
+            - <<: *Dpwh
