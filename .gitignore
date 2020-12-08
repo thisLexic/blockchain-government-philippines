@@ -1,7 +1,10 @@
 
 */config/*
 !*/config/*.yaml
-!*/config/orderer
 
+!*/config/orderer
 */config/orderer/*
 !*/config/orderer/orderer.yaml
+
+!*/config/channel
+*/config/channel/*

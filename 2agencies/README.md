@@ -21,3 +21,9 @@ cryptogen generate --config=./crypto-config.yaml
 
 # 3 Generate the network artefacts
 configtxgen -outputBlock  ./orderer/philgovgenesis.block -channelID philgovchannel  -profile PhilGovOrdererGenesis
+
+configtxgen -outputCreateChannelTx  ./channel/philgovchannel.tx -channelID philgovchannel  -profile PhilGovChannel
+
+# 4 Exit and shutdown tools container
+exit
+sudo docker-compose down
