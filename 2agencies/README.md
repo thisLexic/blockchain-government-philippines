@@ -14,3 +14,4 @@ sudo docker exec -it tools /bin/bash
 
 # 2 Generate the crypto matrial
 cd /var/hyperledger/config
+cryptogen generate --config=./crypto-config.yaml
