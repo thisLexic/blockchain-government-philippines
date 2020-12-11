@@ -1,5 +1,5 @@
 
-# Blockchain for The Philippine Government 🇵🇭
+# Blockchain for The Philippine Government using Hyperledger Fabric 🇵🇭
 This is a blockchain application for decentralizing information stored by the Philippine government. This information can include public project bids, search warrants, police reports, land titles, tax payments etc.
 
 This application is still in its prototyping stage. It is going to be used as my thesis. It makes use of two main technologies: Docker Compose and Hyperledger Fabric
